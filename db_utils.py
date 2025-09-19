@@ -6,14 +6,13 @@ import logging
 from rapidfuzz import process, fuzz
 from dotenv import load_dotenv
 import json
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 from sqlalchemy import text
 import streamlit as st
 
-load_dotenv()
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.INFO)
 
 @st.cache_resource
 def init_connection_manager():
@@ -56,7 +55,7 @@ def get_db_engine(database_name):
         logger.info("SSH tunnel established successfully.")
 
         mysql_url = f"mysql+pymysql://{db_user}:{db_password}@127.0.0.1:{tunnel.local_bind_port}/{database_name}"
-        engine = create_engine(mysql_url, pool_recycle=60, pool_pre_ping=True)
+        engine = create_engine(mysql_url, pool_recycle=10, pool_pre_ping=True)
 
         _connections[database_name] = {'engine': engine, 'tunnel': tunnel}
         
